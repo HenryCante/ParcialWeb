@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información El Progreso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .carousel-img {
+            height: 250px;
+            object-fit: cover;
+        }
+        .cart-wrapper {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+
+<!-- Header con carousel y carrito -->
+<div class="container-fluid p-3 bg-light">
+    <div class="row align-items-center">
+        <div class="col-12 position-relative p-0">
+            <!-- Carousel -->
+            <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="" class="d-block w-100 carousel-img" alt="Imagen 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="" class="d-block w-100 carousel-img" alt="Imagen 2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cuerpo principal -->
+<div class="container mt-4">
+    <div class="row">
+        <!-- Menú de Departamentos -->
+        <div class="col-sm-3 mb-4">
+          <h5>Departamento</h5>
+            <div class="list-group" id="contenedorMunicipios">
+              <!-- Aquí se insertan los municipios -->
+            </div>
+        </div>
+
+        <!-- Información -->
+        <div class="col-sm-9">
+        <div class="row" id="contenedorData">
+          <!-- Aquí se inserta la Data -->
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center mt-5 p-3 bg-light">
+    Diseñado por: Henry Yoshuá Canté de León - 1890-22-3895
+</footer>
+
+<script>
+const contenedorMunicipios = document.getElementById("contenedorMunicipios");
+
+const municipios = [
+  { id: 201, nombre: "Guastatoya" },
+  { id: 202, nombre: "Morazán" },
+  { id: 203, nombre: "San Agustín Acasaguastlán" },
+  { id: 204, nombre: "San Cristobal Acasaguastlán" },
+  { id: 205, nombre: "El Jicaro" },
+  { id: 206, nombre: "Sansare" },
+  { id: 207, nombre: "Sanarate" },
+  { id: 208, nombre: "San Antonio la Paz" }
+];
+
+municipios.forEach(municipio => {
+  const li = document.createElement("li");
+  li.className = "list-group-item";
+  li.textContent = municipio.nombre;
+  
+  li.addEventListener("click", () => {
+    cargarInfoMunicipio(municipio.id);
+  });
+
+  contenedorMunicipios.appendChild(li);
+});
+
+function cargarInfoMunicipio(municipioId) {
+  const url = `https://censopoblacion.azurewebsites.net/API/indicadores/2/${municipioId}`;
+  const contenedorData = document.getElementById("contenedorData");
+  contenedorData.innerHTML = "";
+
+  fetch(url)
+    .then(res => res.json())
+    .then(str => {
+      const data = JSON.parse(str);
+
+      const card = document.createElement("div");
+      card.className = "card mb-3";
+
+      const titulo = document.createElement("div");
+      titulo.className = "card-header";
+      titulo.innerText = data.nombre;
+      card.appendChild(titulo);
+
+      const cuerpo = document.createElement("div");
+      cuerpo.className = "card-body";
+      cuerpo.innerHTML = `
+        <h6 class="mt-2">Información general</h6>
+        <ul class="list-unstyled mb-0">
+          <li><strong>Población total:</strong> ${data.pob_total}</li>
+          <li><strong>Hombres:</strong> ${data.total_sexo_hombre} (${data.porc_sexo_hombre.toFixed(2)}%)</li>
+          <li><strong>Mujeres:</strong> ${data.total_sexo_mujeres} (${data.porc_sexo_mujeres.toFixed(2)}%)</li>
+          <li><strong>Promedio de edad:</strong> ${data.edad_promedio}</li>
+          <li><strong>Alfabetismo:</strong> ${data.alfabetismo}%</li>
+          <li><strong>Total de hogares:</strong> ${data.total_hogares}</li>
+          <li><strong>Viviendas particulares:</strong> ${data.viviendas_part}</li>
+          <li><strong>Promedio personas por hogar:</strong> ${data.prom_personas_hogar}</li>
+          <li><strong>Sector urbano:</strong> ${data.total_sector_urbano} (${data.porc_sector_urbano.toFixed(2)}%)</li>
+          <li><strong>Sector rural:</strong> ${data.total_sector_rural} (${data.porc_sector_rural.toFixed(2)}%)</li>
+        </ul>
+
+        <h6 class="mt-2">Población por edades</h6>
+        <ul class="list-unstyled mb-0">
+          <li>0-14 años: ${data.pob_edad_014} (${data.porc_edad_014.toFixed(2)}%)</li>
+          <li>15-64 años: ${data.pob_edad_1564} (${data.porc_edad_1564.toFixed(2)}%)</li>
+          <li>65+ años: ${data.pob_edad_65} (${data.porc_edad_65.toFixed(2)}%)</li>
+        </ul>
+
+        <h6 class="mt-2">Población por grupo étnico</h6>
+        <ul class="list-unstyled mb-0">
+          <li>Maya: ${data.pob_pueblo_maya} (${data.porc_pueblo_maya.toFixed(2)}%)</li>
+          <li>Garífuna: ${data.pob_pueblo_garifuna} (${data.porc_pueblo_garifuna.toFixed(2)}%)</li>
+          <li>Xinca: ${data.pob_pueblo_xinca} (${data.porc_pueblo_xinca.toFixed(2)}%)</li>
+          <li>Afrodescendiente: ${data.pob_pueblo_afrodescendiente} (${data.porc_pueblo_afrodescendiente.toFixed(2)}%)</li>
+          <li>Ladino: ${data.pob_pueblo_ladino} (${data.porc_pueblo_ladino.toFixed(2)}%)</li>
+          <li>Extranjero: ${data.pob_pueblo_extranjero} (${data.porc_pueblo_extranjero.toFixed(2)}%)</li>
+        </ul>
+      `;
+      card.appendChild(cuerpo);
+
+      contenedorData.appendChild(card);
+    })
+    .catch(err => {
+      console.error("Error: ", err);
+      contenedorData.innerHTML = "<div class='alert alert-danger'>No se pudo cargar la información.</div>";
+    });
+}
+cargarInfoMunicipio(999);
+</script>
+
+</body>
+</html>
